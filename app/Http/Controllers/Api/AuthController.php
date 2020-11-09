@@ -12,10 +12,11 @@ class AuthController extends Controller
     {
         $validate = $request->validate([
             'name' =>'required',
-            'email'=>'required|email',
+            'email'=>'required|email|unique:users',
             'password'=>'required|confirmed'
 
         ]);
+        $validate['password'] = bcrypt($request->password);
         $user = User::create($validate);
         $accessToken = $user->createToken('authToken')->accessToken;
         return response(['user'=>$user,'access_token'=>$accessToken]);
@@ -27,6 +28,7 @@ class AuthController extends Controller
             'email'=>'required|email',
             'password'=>'required'
         ]);
+
         if(!auth()->attempt($login_data))
         {
             return response(['message'=>'Invalid credentials']);
